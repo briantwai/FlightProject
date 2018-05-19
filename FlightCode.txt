@@ -1,0 +1,118 @@
+import java.util.*;
+
+public class Flight {
+    public String source;
+    public String destination;
+    public Flight(String s, String d){
+        source = s;
+        destination = d;
+    }
+    public static Flight combineFlights(Flight[] flights) {
+	    Set<String> sources = new HashSet<String>();
+	    Set<String> destinations = new HashSet<String>();
+	    int flightsToCombine= flights.length;
+	    for(int i = 0 ;i<flightsToCombine; i++) {
+		    Flight f = flights[i];
+		    String source = f.source;
+		    String end = f.destination;
+		    if(!sources.contains(source)){
+			    sources.add(source);	
+		    }
+		    if(!destinations.contains(end)) {
+			    destinations.add(end);
+		    }
+	    }
+	    String flightS = "";
+	    String flightD = "";
+	    for(String s : sources) {
+		    if(!destinations.contains(s)) {
+			    flightS = s;
+		    }
+	    }
+	    for(String d : destinations) {
+		    if(!sources.contains(d)){
+			    flightD = d;
+		    }
+	    }
+	    return new Flight(flightS,flightD);
+    }
+
+    //Takes longer, but should handle bad input better
+    //Also takes into account there could be multiple flights
+    public static List<Flight> combineFlightsRobustly(Flight[] flights) {
+	    Map<String, String> sourceToDest = new HashMap<>();
+	    Set<String> sources = new HashSet<String>();
+	    Set<String> destinations = new HashSet<String>();
+	    int flightsToCombine= flights.length;
+	    for(int i = 0 ;i<flightsToCombine; i++) {
+		    Flight f = flights[i];
+		    String source = f.source;
+		    String end = f.destination;
+		    if(!sources.contains(source)){
+			    sources.add(source);	
+		    }
+		    if(!destinations.contains(end)) {
+			    destinations.add(end);
+		    }
+		    sourceToDest.put(source, end);
+	    }
+	    List<Flight> finalFlights = new ArrayList<>();
+	    for(String s : sources) {
+		    if(!destinations.contains(s)) {
+			    String dest = sourceToDest.get(s);
+			    while(sourceToDest.containsKey(dest)) {
+				    dest = sourceToDest.get(dest);
+			    }
+			    finalFlights.add(new Flight(s, dest));
+		    }
+	    }	
+	    return finalFlights;
+    }
+    
+    public static void main(String args[]) {
+        //Case 1
+        Flight t1 = new Flight("SFO", "EWR");
+        Flight[] s1 = new Flight[1];
+        s1[0] = t1;
+        Flight result1 = combineFlights(s1);
+        System.out.println(result1.source);
+        System.out.println(result1.destination);
+        List<Flight> flights1 = combineFlightsRobustly(s1);
+        for(Flight f : flights1) {
+            System.out.println(f.source);
+            System.out.println(f.destination);
+        }
+        //Case 2
+        Flight t21 = new Flight("SFO", "ATR");
+        Flight t22 = new Flight("ATR", "EWR");
+        Flight[] s2 = new Flight[2];
+        s2[0] = t22;
+        s2[1] = t21;
+        Flight result2 = combineFlights(s2);
+        System.out.println(result2.source);
+        System.out.println(result2.destination);
+        List<Flight> flights2 = combineFlightsRobustly(s2);
+        for(Flight f : flights2) {
+            System.out.println(f.source);
+            System.out.println(f.destination);
+        }
+        //Case 3
+        Flight t31 = new Flight("IND", "EWR");
+        Flight t32 = new Flight("SFO", "ATL");
+        Flight t33 = new Flight("GSO", "IND");
+        Flight t34 = new Flight("ATL", "GSO");
+        Flight[] s3 = new Flight[4];
+        s3[0] = t31;
+        s3[1] = t32;
+        s3[2] = t33;
+        s3[3] = t34;
+        Flight result3 = combineFlights(s3);
+        System.out.println(result3.source);
+        System.out.println(result3.destination);
+        List<Flight> flights3 = combineFlightsRobustly(s3);
+        for(Flight f : flights3) {
+            System.out.println(f.source);
+            System.out.println(f.destination);
+        }
+    }
+}
